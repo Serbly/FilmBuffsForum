@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: FilmBuffsForum
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/film_buffs_forum
+    username: postgres
+    password: Qwerty2411.
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    generate-ddl: true
+
+  thymeleaf:
+    cache: false
+
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+app:
+  jwt:
+    secret: "очень-длинный-секрет-не-короче-64-символов-обязательно"
+    tokenExpiration: 60m
+    refreshTokenExpiration: 120m
+  security:
+    type: db
