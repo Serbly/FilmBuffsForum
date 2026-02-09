@@ -2,6 +2,7 @@ package org.example.filmbuffsforum.auth.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.filmbuffsforum.auth.dto.CreateUserByAdminRequest;
+import org.example.filmbuffsforum.auth.model.User;
 import org.example.filmbuffsforum.auth.service.AdminService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -25,6 +26,7 @@ public class AdminController {
     @GetMapping("/dashboard/create")
     public String createPage(Model model) {
         model.addAttribute("request", new CreateUserByAdminRequest());
+        model.addAttribute("editMode", false);
         return "auth/admin/create-user";
     }
 
@@ -32,7 +34,7 @@ public class AdminController {
     public String createUser(@ModelAttribute CreateUserByAdminRequest request, Model model) {
         try {
             adminService.createUserByAdmin(request);
-            return "redirect:/auth/admin/dashboard";
+            return "redirect:/app/admin/dashboard";
         } catch (Exception e) {
             model.addAttribute("error", "Ошибка создания пользователя");
             return "auth/admin/create-user";
@@ -43,7 +45,7 @@ public class AdminController {
     public String deleteUser(@PathVariable String username, Model model) {
         try {
             adminService.deleteUserByUsername(username);
-            return "redirect:/auth/admin/dashboard";
+            return "redirect:/app/admin/dashboard";
         } catch (Exception e) {
             model.addAttribute("Error", "Ошибка удаления пользователя");
             return "auth/admin/dashboard";
@@ -54,7 +56,7 @@ public class AdminController {
     public String restoreUser(@PathVariable String username, Model model) {
         try {
             adminService.restoreUserByUsername(username);
-            return "redirect:/auth/admin/dashboard";
+            return "redirect:/app/admin/dashboard";
         } catch (Exception e) {
             model.addAttribute("Error", "Ошибка восстановления пользователя");
             return "auth/admin/dashboard";
@@ -63,7 +65,30 @@ public class AdminController {
 
     @GetMapping("/dashboard/update/{username}")
     public String updatePage(@PathVariable String username, Model model) {
-        model.addAttribute("user", adminService.getUserByUsername(username));
+        User user = adminService.getUserByUsername(username);
+
+        CreateUserByAdminRequest request = CreateUserByAdminRequest.builder()
+                .username(user.getUsername())
+                .roles(user.getRoles())
+                .build();
+
+        model.addAttribute("request", request);
+        model.addAttribute("editMode", true);
         return "auth/admin/create-user";
+    }
+
+    @PostMapping("/dashboard/update")
+    public String updateUser(
+            @ModelAttribute CreateUserByAdminRequest request,
+            Model model
+    ) {
+        try {
+            adminService.updateUser(request);
+            return "redirect:/app/admin/dashboard";
+        } catch (Exception e) {
+            model.addAttribute("error", "Ошибка обновления пользователя");
+            model.addAttribute("editMode", true);
+            return "auth/admin/create-user";
+        }
     }
 }

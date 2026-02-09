@@ -1,0 +1,97 @@
+.container {
+    display: flex;
+    flex-direction: column;
+
+    max-width: 1100px;
+    height: calc(100vh - 64px);
+
+    margin: 0 auto;
+    padding: 24px 24px 32px;
+
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-shrink: 0;
+}
+
+#add-user-btn {
+    width: 68%;
+}
+
+.table-wrapper {
+    flex: 1;
+    overflow-y: auto;
+
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 14px;
+}
+
+.table-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 8px;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #1e1e2f;
+    border-radius: 12px;
+}
+
+.users-table th,
+.users-table td {
+    padding: 14px 16px;
+    text-align: center;
+}
+
+.users-table thead th{
+    position: sticky;
+    top: 0;
+    z-index: 2;
+
+    background: #2a2a40;
+}
+
+.users-table tbody tr {
+    border-bottom: 1px solid #2f2f45;
+}
+
+.users-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.role {
+    background: #4444dd;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-right: 6px;
+    font-size: 13px;
+}
+
+.status.active {
+    color: #4caf50;
+}
+
+.status.deleted {
+    color: #f44336;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn.small {
+    padding: 6px 10px;
+    font-size: 13px;
+}

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>FilmBuffsForum — Лента</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/fragments/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/content/feed.css}">
+</head>
+<body>
+
+<div th:replace="~{/fragments/navbar-main :: body}"></div>
+
+<div class="feed-container">
+
+    <div class="feed-header">
+        <a class="btn primary"
+           href="/app/posts/create"
+           onclick="if (!IS_AUTH){showAuthMessage(); return false;}">Создать пост</a>
+    </div>
+
+    <div class="posts">
+
+        <div class="post-card"
+             th:each="post : ${posts}"
+             th:attr="data-post-id=${post.id}">
+
+            <div class="post-header">
+                <a class="username"
+                   th:href="@{/app/user/profile/{u}(u=${post.author.username})}"
+                   th:text="${post.author.username}">
+                </a>
+            </div>
+
+            <!-- Заголовок -->
+            <h3 class="post-title" th:text="${post.title}"></h3>
+
+            <!-- Текст -->
+            <div class="post-content" th:text="${post.content}"></div>
+
+            <!-- Карточка фильма -->
+            <div class="movie-card" th:if="${post.movie != null}">
+                <a class="movie-title"
+                   th:href="@{/app/movies/{id}(id=${post.movie.id})}"
+                   th:text="${post.movie.title}"></a>
+
+                <div class="movie-genres"
+                     th:text="${#strings.listJoin(post.movie.genres, ', ')}">
+                </div>
+            </div>
+
+            <!-- Кнопки -->
+            <div class="post-actions">
+
+                <button class="like-btn"
+                        th:attr="data-id=${post.id}"
+                        onclick="toggleLike(this)">
+                    ❤️ <span th:text="${post.likes.size()}"></span>
+                </button>
+
+                <button class="comment-btn"
+                        onclick="toggleComments(this)">
+                    💬 <span th:text="${post.comments.size()}"></span>
+                </button>
+
+                <button class="share-btn"
+                        onclick="if(!IS_AUTH){showAuthMessage(); return false;}">
+                    🔗 Поделиться</button>
+            </div>
+
+            <!-- Комментарии -->
+            <div class="comments hidden"></div>
+
+        </div>
+
+    </div>
+
+</div>
+</body>
+
+<script src="/js/feed.js"></script>
+
+<script>
+    const IS_AUTH = [[${#authorization.expression('isAuthenticated()')}]];
+</script>
+
+</html>

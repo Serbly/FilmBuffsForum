@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<body>
+
+<nav class="navbar">
+    <div class="nav-left">
+        <a href="/" class="logo">FilmBuffsForum</a>
+    </div>
+
+    <div class="nav-right">
+        <a sec:authorize="hasRole('ADMIN')" href="/app/admin/dashboard">Админка</a>
+        <a href="/auth/logout">Выйти</a>
+    </div>
+</nav>
+
+</body>
+</html>

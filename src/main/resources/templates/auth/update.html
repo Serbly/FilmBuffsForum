@@ -1,10 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Редактирование профиля</title>
+    <link rel="stylesheet" th:href="@{/css/auth/update.css}">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
 </head>
 <body>
+
+<div class="page-center">
+    <form class="form update-form"
+          th:action="@{/app/user/update}"
+          method="post">
+
+        <h2>Редактирование профиля</h2>
+
+        <input type="text"
+               name="username"
+               th:value="${updateRequest.username}"
+               placeholder="Логин"
+               required>
+
+        <input type="password"
+               name="password"
+               placeholder="Новый пароль">
+
+        <button type="submit" class="btn primary">Сохранить</button>
+
+        <a id="btn-back" href="/app/user/profile" class="btn secondary">Назад</a>
+
+        <p th:if="${error}" class="error" th:text="${error}"></p>
+    </form>
+</div>
 
 </body>
 </html>

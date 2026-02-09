@@ -2,9 +2,12 @@ package org.example.filmbuffsforum.content.model.forum;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import org.example.filmbuffsforum.auth.model.User;
+import org.example.filmbuffsforum.content.model.movies.Movie;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
@@ -25,9 +28,21 @@ public class Post {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @ManyToOne
+    @JoinColumn(name = "movie_id")
+    private Movie movie;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Like> likes;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Comment> comments;
 }

@@ -1,11 +1,11 @@
 package org.example.filmbuffsforum.auth.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +19,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private String username;
 
@@ -29,8 +29,17 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     @ElementCollection(targetClass = RoleType.class, fetch = FetchType.EAGER)
-    private Set<RoleType> roles =new HashSet<>();
+    private Set<RoleType> roles = new HashSet<>();
 
     @Column(name = "is_deleted")
     private boolean isDeleted;
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return getRoles().stream().map(r -> new SimpleGrantedAuthority(r.name())).toList();
+    }
+
+    @Override
+    public String toString() {
+        return username;
+    }
 }

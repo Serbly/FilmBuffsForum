@@ -3,7 +3,8 @@ package org.example.filmbuffsforum.auth.config;
 import lombok.RequiredArgsConstructor;
 import org.example.filmbuffsforum.auth.security.UserDetailsServiceImpl;
 import org.example.filmbuffsforum.auth.security.jwt.JwtAuthenticationEntryPoint;
-import org.example.filmbuffsforum.auth.security.jwt.JwtTokenFilter;
+import org.example.filmbuffsforum.auth.security.jwt.JwtAuthenticationFilter;
+import org.example.filmbuffsforum.auth.security.jwt.JwtRefreshFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,7 +28,9 @@ public class SecurityConfiguration {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    private final JwtTokenFilter jwtTokenFilter;
+    private final JwtRefreshFilter jwtRefreshFilter;
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
@@ -53,9 +56,13 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll()
-                        .requestMatchers("/app/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/css/**",
+                                "/api/**",
+                                "/js/**",
+                                "/app/**",
+                                "/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(configurer -> configurer.authenticationEntryPoint(jwtAuthenticationEntryPoint))
@@ -65,7 +72,8 @@ public class SecurityConfiguration {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtRefreshFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

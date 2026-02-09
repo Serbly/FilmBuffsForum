@@ -1,0 +1,35 @@
+.container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    width: 420px;
+    padding: 30px;
+    background: #1e1e2f;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.card input {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+}
+
+.roles {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#btn-back {
+    width: 96%;
+    font-size: medium;
+    padding: 8px;
+}

@@ -17,23 +17,19 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public User getUserInfo() {
-        var currentPrincipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (currentPrincipal instanceof AppUserDetails userDetails) {
-            Integer userId = userDetails.getId();
-            return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        }
-        return null;
-    }
-
     public void updateUser(CreateUserRequest request) {
         var currentPrincipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (currentPrincipal instanceof AppUserDetails userDetails) {
-            Integer userId = userDetails.getId();
+            Long userId = userDetails.getId();
             User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
             user.setUsername(request.getUsername());
-            user.setPassword(request.getPassword());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
             userRepository.save(user);
         }
+    }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

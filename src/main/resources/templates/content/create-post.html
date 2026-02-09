@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Создать пост</title>
+    <link rel="stylesheet" th:href="@{/css/content/create-post.css}">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/fragments/navbar.css}">
+</head>
+<body>
+
+<div th:replace="~{/fragments/navbar-main :: body}"></div>
+
+<div class="create-container">
+
+    <h2>Создание поста</h2>
+
+    <form th:action="@{/app/posts/create}" th:object="${request}" method="post">
+
+        <input type="text" th:field="*{title}" placeholder="Заголовок" maxlength="200" required />
+
+        <textarea th:field="*{content}" placeholder="Текст поста..." required></textarea>
+
+        <div class="movie-search">
+            <input type="text" id="movieInput" placeholder="Поиск фильма..." autocomplete="off" required/>
+            <input type="hidden" name="movieId" id="movieId" />
+
+            <div id="movieDropdown" class="dropdown hidden"></div>
+        </div>
+
+        <button class="btn" type="submit">Опубликовать</button>
+
+    </form>
+
+</div>
+
+<script src="/js/movie-search.js"></script>
+
+</body>
+</html>

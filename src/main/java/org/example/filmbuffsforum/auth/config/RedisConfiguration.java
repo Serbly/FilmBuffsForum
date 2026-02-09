@@ -21,7 +21,7 @@ import java.util.Collections;
 )
 public class RedisConfiguration {
 
-    @Value("${app.jwt.refreshTokenExpiration}")
+    @Value("${app.jwt.refresh-expiration-ms}")
     private Duration refreshTokenExpiration;
 
     @Bean

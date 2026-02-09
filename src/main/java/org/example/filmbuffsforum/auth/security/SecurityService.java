@@ -1,18 +1,12 @@
 package org.example.filmbuffsforum.auth.security;
 
 import lombok.RequiredArgsConstructor;
-import org.example.filmbuffsforum.auth.dto.AuthResponse;
-import org.example.filmbuffsforum.auth.dto.CreateUserRequest;
-import org.example.filmbuffsforum.auth.dto.RefreshTokenRequest;
-import org.example.filmbuffsforum.auth.dto.RefreshTokenResponse;
+import org.example.filmbuffsforum.auth.dto.*;
 import org.example.filmbuffsforum.auth.exception.AlreadyExitsException;
-import org.example.filmbuffsforum.auth.exception.RefreshTokenException;
-import org.example.filmbuffsforum.auth.redis.RefreshToken;
 import org.example.filmbuffsforum.auth.model.RoleType;
 import org.example.filmbuffsforum.auth.model.User;
 import org.example.filmbuffsforum.auth.repository.UserRepository;
-import org.example.filmbuffsforum.auth.security.jwt.JwtUtils;
-import org.example.filmbuffsforum.auth.service.RefreshTokenService;
+import org.example.filmbuffsforum.auth.security.jwt.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,22 +23,29 @@ import java.util.List;
 public class SecurityService {
     private final AuthenticationManager authenticationManager;
 
-    private final JwtUtils jwtUtils;
-
-    private final RefreshTokenService refreshTokenService;
+    private final JwtService jwtService;
 
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
 
-    public AuthResponse authenticateUser(CreateUserRequest request) {
-        if (userRepository.findByUsername(request.getUsername()).orElseThrow().isDeleted()) {
-            throw new RuntimeException("User not found");
+    public AuthResponse authenticateUser(LoginRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.isDeleted()) {
+            throw new RuntimeException("User deleted");
         }
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                request.getUsername(),
-                request.getPassword()
-        ));
+
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    request.getUsername(),
+                    request.getPassword()
+            ));
+        } catch (Exception e) {
+            throw new RuntimeException("Bad credentials");
+        }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -54,15 +55,21 @@ public class SecurityService {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+        long refreshTtl = request.isRememberMe()
+                ? 7 * 24 * 60 * 60  // 7 дней
+                : 24 * 60 * 60;    // 1 день
+
+        String accessToken = jwtService.generateAccessToken(userDetails.getUsername());
+        String refreshToken = jwtService.generateRefreshToken(userDetails.getUsername());
 
         return AuthResponse.builder()
                 .id(userDetails.getId())
-                .token(jwtUtils.generateToken(userDetails))
-                .refreshToken(refreshToken.getToken())
+                .token(accessToken)
+                .refreshToken(refreshToken)
                 .username(userDetails.getUsername())
                 .roles(roles)
                 .isDeleted(userDetails.isDeleted())
+                .refreshTtl(refreshTtl)
                 .build();
     }
 
@@ -73,7 +80,7 @@ public class SecurityService {
 
         User user = User.builder()
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .isDeleted(false)
                 .build();
         user.setRoles(Collections.singleton(RoleType.ROLE_USER));
@@ -81,18 +88,18 @@ public class SecurityService {
         userRepository.save(user);
     }
 
-    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
-        String refreshToken = request.getRefreshToken();
-
-        return refreshTokenService.findByRefreshToken(refreshToken)
-                .map(refreshTokenService::checkRefreshToken)
-                .map(RefreshToken::getId)
-                .map(userId -> {
-                    User tokenOwner = userRepository.findById(userId).orElseThrow(() ->
-                            new RefreshTokenException("Exception trying to get token for userId " + userId));
-                    String token = jwtUtils.generateTokenFromUsername(tokenOwner.getUsername());
-
-                    return new RefreshTokenResponse(token, refreshTokenService.createRefreshToken(userId).getToken());
-                }).orElseThrow(() -> new RefreshTokenException(refreshToken, "Refresh token not found"));
-    }
+//    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
+//        String refreshToken = request.getRefreshToken();
+//
+//        return refreshTokenService.findByRefreshToken(refreshToken)
+//                .map(refreshTokenService::checkRefreshToken)
+//                .map(RefreshToken::getId)
+//                .map(userId -> {
+//                    User tokenOwner = userRepository.findById(userId).orElseThrow(() ->
+//                            new RefreshTokenException("Exception trying to get token for userId " + userId));
+//                    String token = jwtService.generateAccessToken(tokenOwner.getUsername());
+//
+//                    return new RefreshTokenResponse(token, refreshTokenService.createRefreshToken(userId).getToken());
+//                }).orElseThrow(() -> new RefreshTokenException(refreshToken, "Refresh token not found"));
+//    }
 }

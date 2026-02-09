@@ -27,8 +27,8 @@ spring:
       enabled: true
 app:
   jwt:
-    secret: "очень-длинный-секрет-не-короче-64-символов-обязательно"
-    tokenExpiration: 60m
-    refreshTokenExpiration: 120m
+    secret: "very-long-super-secret-key-256-bits-minimum"
+    access-expiration-ms: 900000        # 15 минут
+    refresh-expiration-ms: 604800000    # 7 дней
   security:
     type: db

@@ -2,7 +2,6 @@ package org.example.filmbuffsforum.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.filmbuffsforum.auth.dto.CreateUserByAdminRequest;
-import org.example.filmbuffsforum.auth.dto.UpdateUserRequest;
 import org.example.filmbuffsforum.auth.exception.AlreadyExitsException;
 import org.example.filmbuffsforum.auth.model.User;
 import org.example.filmbuffsforum.auth.repository.UserRepository;
@@ -26,7 +25,7 @@ public class AdminService {
 
         User user = User.builder()
                 .roles(request.getRoles())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .isDeleted(false)
                 .username(request.getUsername())
                 .build();
@@ -54,10 +53,15 @@ public class AdminService {
         userRepository.save(user);
     }
 
-    public void updateUser(Integer id, UpdateUserRequest request) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    public void updateUser(CreateUserByAdminRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
         user.setRoles(request.getRoles());
         userRepository.save(user);
     }

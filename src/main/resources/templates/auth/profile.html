@@ -1,10 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title th:text="${user.username}"></title>
+    <link rel="stylesheet" th:href="@{/css/auth/profile.css}">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/fragments/navbar.css}">
 </head>
-<body>
+<body th:attr="data-username=${user.username}">
+
+<div th:replace="~{/fragments/navbar-profile :: body}"></div>
+
+<div class="profile-container">
+
+    <h2 th:text="${user.username}"></h2>
+
+    <button id="followBtn"
+            th:if="${!isMe}"
+            onclick="toggleFollow('[[${user.username}]]', this)">
+    </button>
+
+    <div class="stats">
+        <span>Подписчиков: <span id="followers"></span></span>
+    </div>
+
+    <!-- ЛЕНТА ПОСТОВ -->
+    <div class="profile-feed">
+
+        <h3>Посты пользователя</h3>
+
+        <div class="posts">
+
+            <div class="post-card"
+                 th:each="post : ${posts}"
+                 th:attr="data-post-id=${post.id}">
+
+                <div class="post-header">
+                    <a class="username"
+                       th:href="@{/app/user/profile/{u}(u=${post.author.username})}"
+                       th:text="${post.author.username}"></a>
+                </div>
+
+                <h3 class="post-title" th:text="${post.title}"></h3>
+
+                <div class="post-content" th:text="${post.content}"></div>
+
+                <div class="movie-card" th:if="${post.movie != null}">
+                    <a class="movie-title"
+                       th:href="@{/app/movies/{id}(id=${post.movie.id})}"
+                       th:text="${post.movie.title}"></a>
+                </div>
+
+                <div class="post-actions">
+
+                    <button class="like-btn"
+                            th:attr="data-id=${post.id}"
+                            onclick="toggleLike(this)">
+                        ❤️ <span th:text="${post.likes}"></span>
+                    </button>
+
+                    <button class="comment-btn"
+                            onclick="toggleComments(this)">
+                        💬 <span th:text="${post.comments}"></span>
+                    </button>
+
+                </div>
+
+                <div class="comments hidden"></div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
 
 </body>
+
+<script src="/js/feed.js"></script>
+<script src="/js/profile.js"></script>
+
 </html>

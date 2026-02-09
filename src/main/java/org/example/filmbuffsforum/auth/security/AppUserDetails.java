@@ -12,7 +12,7 @@ import java.util.Collection;
 public class AppUserDetails implements UserDetails {
     private final User user;
 
-    public Integer getId() {
+    public Long getId() {
         return user.getId();
     }
 

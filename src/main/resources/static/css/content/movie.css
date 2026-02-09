@@ -1,0 +1,53 @@
+/* === MOVIE PAGE === */
+
+.movie-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 32px 20px;
+}
+
+.movie-header h2 {
+    margin-bottom: 6px;
+}
+
+.meta {
+    font-size: 14px;
+    color: #9ca3af;
+    display: flex;
+    gap: 10px;
+}
+
+.genres {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+}
+
+.genres span {
+    background: #020617;
+    border: 1px solid #1e293b;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 12px;
+}
+
+.description {
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+.posts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.post a {
+    text-decoration: none;
+    color: #a5b4fc;
+}
+
+.post a:hover {
+    color: #818cf8;
+}

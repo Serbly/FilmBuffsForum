@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class AuthResponse {
-    private Integer id;
+    private Long id;
 
     private String token;
 
@@ -23,4 +23,6 @@ public class AuthResponse {
     private List<String> roles;
 
     private boolean isDeleted;
+
+    private long refreshTtl;
 }

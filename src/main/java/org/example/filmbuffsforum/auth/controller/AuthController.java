@@ -1,15 +1,14 @@
 package org.example.filmbuffsforum.auth.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.example.filmbuffsforum.auth.dto.AuthResponse;
-import org.example.filmbuffsforum.auth.dto.CreateUserRequest;
+import org.example.filmbuffsforum.auth.dto.*;
 import org.example.filmbuffsforum.auth.security.SecurityService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -24,15 +23,36 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public String loginUser(@ModelAttribute CreateUserRequest request, Model model) {
+    public String loginUser(
+            @ModelAttribute LoginRequest request,
+            HttpServletResponse response,
+            Model model
+    ) {
         try {
-            AuthResponse response = securityService.authenticateUser(request);
-            return "redirect:/profile";
+
+            AuthResponse auth = securityService.authenticateUser(request);
+
+            Cookie access = new Cookie("JWT", auth.getToken());
+            access.setHttpOnly(true);
+            access.setPath("/");
+            access.setMaxAge(15 * 60); // 15 минут
+
+            Cookie refresh = new Cookie("refreshToken", auth.getRefreshToken());
+            refresh.setHttpOnly(true);
+            refresh.setPath("/");
+            refresh.setMaxAge((int) auth.getRefreshTtl());
+
+            response.addCookie(access);
+            response.addCookie(refresh);
+
+            return "redirect:/app/user/profile/" + request.getUsername();
+
         } catch (Exception e) {
             model.addAttribute("error", "Неверный логин или пароль");
             return "auth/signin";
         }
     }
+
 
     @GetMapping("/signup")
     public String registerPage(Model model) {
@@ -52,7 +72,22 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
-    public String logout() {
-        return "redirect:/auth/signin";
+    public String logout(HttpServletResponse response) {
+
+        Cookie access = new Cookie("JWT", null);
+        access.setMaxAge(0);
+        access.setPath("/");
+
+        Cookie refresh = new Cookie("refreshToken", null);
+        refresh.setMaxAge(0);
+        refresh.setPath("/");
+
+        response.addCookie(access);
+        response.addCookie(refresh);
+
+        SecurityContextHolder.clearContext();
+
+        return "redirect:/";
+
     }
 }

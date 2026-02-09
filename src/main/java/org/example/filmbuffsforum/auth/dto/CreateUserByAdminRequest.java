@@ -15,7 +15,7 @@ import java.util.Set;
 public class CreateUserByAdminRequest {
     private String username;
 
-    private Set<RoleType> roles;
-
     private String password;
+
+    private Set<RoleType> roles;
 }
