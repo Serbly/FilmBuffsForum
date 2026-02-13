@@ -70,3 +70,13 @@ git clone https://github.com/Serbly/FilmBuffsForum.git
 3. Запустить PostgreSQL и Redis
 4. Запуск:
 mvn spring-boot:run
+
+## 🔐 Авторизация
+
+Используется Spring Security с JWT / Session authentication:
+Access + Refresh tokens
+Ролевая модель доступа
+
+## 🎯 Назначение проекта
+
+Проект разработан в учебных и демонстрационных целях как полноценная backend-система уровня junior+/middle- с проработанной архитектурой, безопасностью и бизнес-логикой.
